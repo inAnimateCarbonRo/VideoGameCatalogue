@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/Backend/">
+    <Project Path="VideoGameCatalogue.BusinessLogic/VideoGameCatalogue.BusinessLogic.csproj" />
+    <Project Path="VideoGameCatalogue.Data/VideoGameCatalogue.Data.csproj" Id="68f1c4d8-1d19-47e6-94fc-5942092743ea" />
+    <Project Path="VideoGameCatalogue.Shared/VideoGameCatalogue.Shared.csproj" Id="6525218d-981e-4e97-a6df-de03645a70e8" />
+  </Folder>
+  <Folder Name="/Frontend/" />
+  <Folder Name="/Testing/" />
+</Solution>
