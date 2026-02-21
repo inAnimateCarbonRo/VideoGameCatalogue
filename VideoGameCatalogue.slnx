@@ -5,5 +5,8 @@
     <Project Path="VideoGameCatalogue.Shared/VideoGameCatalogue.Shared.csproj" Id="6525218d-981e-4e97-a6df-de03645a70e8" />
   </Folder>
   <Folder Name="/Frontend/" />
+  <Folder Name="/MISC/">
+    <File Path="CREATEDB.sql" />
+  </Folder>
   <Folder Name="/Testing/" />
 </Solution>

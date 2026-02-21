@@ -5,7 +5,7 @@ using System.Text;
 
 namespace VideoGameCatalogue.Shared.Entities
 {
-    public class EntititySoftDeleteBase
+    public class EntityBase
     {
         [Key]
         public int Id { get; set; }

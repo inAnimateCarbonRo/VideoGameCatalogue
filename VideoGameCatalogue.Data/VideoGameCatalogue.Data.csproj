@@ -10,4 +10,13 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\Contracts\" />
+    <Folder Include="Models\Mapping\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\VideoGameCatalogue.Shared\VideoGameCatalogue.Shared.csproj" />
+  </ItemGroup>
+
 </Project>
