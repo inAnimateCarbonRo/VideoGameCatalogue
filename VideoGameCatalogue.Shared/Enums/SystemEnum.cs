@@ -12,11 +12,11 @@ namespace VideoGameCatalogue.Shared.Enums
     {
 
         [Display(Name = "Live Production DB")]
-        [Description("PRODDBNAME")]
+        [Description("PRODDBCONN")]
         SystemProduction = 0,
 
         [Display(Name = "Development DB")]
-        [Description("DEVDBNAME")]
+        [Description("DEVDBCONN")]
         SystemDev = 1
     }
 

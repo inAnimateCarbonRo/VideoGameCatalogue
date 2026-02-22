@@ -11,11 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\Contracts\" />
-    <Folder Include="Models\Mapping\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\VideoGameCatalogue.Shared\VideoGameCatalogue.Shared.csproj" />
   </ItemGroup>
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace VideoGameCatalogue.Shared.Entities
+namespace VideoGameCatalogue.Shared.Base
 {
     public class EntitySoftDeleteBase : EntityBase
     {

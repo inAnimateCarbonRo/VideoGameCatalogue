@@ -12,20 +12,21 @@ namespace VideoGameCatalogue.Data.Data
 
         public VideoGameCatalogueContext(DbContextOptions<VideoGameCatalogueContext> options) : base(options)
         {
-            Database.EnsureCreated();
+            //Database.EnsureCreated();
         }
 
 
         // DbSets (Tables) 
         public DbSet<VideoGame> VideoGames => Set<VideoGame>();  //gets a non nullable DbSet 
+        public DbSet<Genre> Genres => Set<Genre>();   
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
-            //Singular Table naming 
+             
             modelBuilder.ApplyConfiguration(new VideoGameMapping());
+            modelBuilder.ApplyConfiguration(new GenreMapping());
         }
     }
 }
