@@ -49,12 +49,6 @@ builder.Services.AddVideoGameCatalogueServices(); // DI for business logic servi
 
 var app = builder.Build();
 
-// TODO REMOVE THIS
-// just here while i configure my models
-var scope = app.Services.CreateScope();
-var context = scope.ServiceProvider.GetRequiredService<VideoGameCatalogue.Data.Data.VideoGameCatalogueContext>();
-context.Database.EnsureDeleted();
-context.Database.EnsureCreated();
 
 
 // Configure the HTTP request pipeline.
