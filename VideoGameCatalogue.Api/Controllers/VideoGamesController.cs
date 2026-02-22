@@ -47,7 +47,7 @@ namespace VideoGameCatalogue.Api.Controllers
             var response = items.MapToResponse();
             return Ok(response);
         }
-         
+
         [HttpPost(ApiEndpoints.VideoGameEndpoints.Create)]
         [ProducesResponseType(typeof(VideoGameResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -58,7 +58,7 @@ namespace VideoGameCatalogue.Api.Controllers
 
             try
             {
-                var created = await _service.AddWithGenresAsync(item, token);
+                var created = await _service.AddWithRelationshipsAsync(item, token);
                 return CreatedAtAction(nameof(GetById), new { id = created.Id }, created.MapToResponse());
             }
             catch (InvalidOperationException ex)
@@ -68,28 +68,25 @@ namespace VideoGameCatalogue.Api.Controllers
             catch (DbUpdateException ex) when (ex.InnerException is Microsoft.Data.SqlClient.SqlException sqlEx
                                               && (sqlEx.Number == 2601 || sqlEx.Number == 2627))
             {
-                // SQL Server duplicate key / unique constraint
                 return Conflict("A record with the same unique value already exists.");
             }
         }
 
-
         [HttpPut(ApiEndpoints.VideoGameEndpoints.Update)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(VideoGameResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
-        public async Task<IActionResult> Update([FromRoute] int id,[FromBody] UpdateVideoGameRequest item, CancellationToken token)
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateVideoGameRequest item, CancellationToken token)
         {
             if (item == null) return BadRequest("Invalid data.");
             if (id != item.Id) return BadRequest("Route id does not match payload id.");
 
             try
             {
-                var updated = await _service.UpdateWithGenresAsync(item, token);
+                var updated = await _service.UpdateWithRelationshipsAsync(item, token);
                 if (updated == null) return NotFound();
                 return Ok(updated.MapToResponse());
-
             }
             catch (InvalidOperationException ex)
             {

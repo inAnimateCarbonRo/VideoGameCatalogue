@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq; 
-using System.Text;
+using System.Linq;
 using VideoGameCatalogue.Data.Models.Contracts.Requests;
 using VideoGameCatalogue.Data.Models.Contracts.Responses;
 using VideoGameCatalogue.Data.Models.Entities;
@@ -17,7 +16,14 @@ namespace VideoGameCatalogue.Data.Models.Mapping
                 Title = request.Title,
                 Synopsis = request.Synopsis,
                 ReleaseDate = request.ReleaseDate,
-                UserScore = request.UserScore
+                UserScore = request.UserScore,
+
+                PublisherId = request.PublisherId,
+                DeveloperId = request.DeveloperId,
+
+                // Cover image bytes are handled in service (Base64 -> byte[])
+                // so we don't set CoverImageBytes here.
+                CoverImageContentType = request.CoverImageContentType
             };
         }
 
@@ -29,7 +35,13 @@ namespace VideoGameCatalogue.Data.Models.Mapping
                 Title = request.Title,
                 Synopsis = request.Synopsis,
                 ReleaseDate = request.ReleaseDate,
-                UserScore = request.UserScore
+                UserScore = request.UserScore,
+
+                PublisherId = request.PublisherId,
+                DeveloperId = request.DeveloperId,
+
+                // Cover image bytes are handled in service (Base64 -> byte[])
+                CoverImageContentType = request.CoverImageContentType
             };
         }
 
@@ -43,12 +55,39 @@ namespace VideoGameCatalogue.Data.Models.Mapping
                 ReleaseDate = entity.ReleaseDate,
                 UserScore = entity.UserScore,
 
-                // map genres
                 Genres = entity.Genres.Select(g => new GenreResponse
                 {
                     Id = g.Id,
                     Name = g.Name
-                }).ToList()
+                }).ToList(),
+
+                Platforms = entity.Platforms.Select(p => new PlatformResponse
+                {
+                    Id = p.Id,
+                    Name = p.Name
+                }).ToList(),
+
+                Publisher = entity.Publisher == null
+                    ? null
+                    : new CompanyResponse
+                    {
+                        Id = entity.Publisher.Id,
+                        Name = entity.Publisher.Name
+                    },
+
+                Developer = entity.Developer == null
+                    ? null
+                    : new CompanyResponse
+                    {
+                        Id = entity.Developer.Id,
+                        Name = entity.Developer.Name
+                    },
+
+                CoverImageBase64 = entity.CoverImageBytes == null
+                    ? null
+                    : Convert.ToBase64String(entity.CoverImageBytes),
+
+                CoverImageContentType = entity.CoverImageContentType
             };
         }
 

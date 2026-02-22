@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
 using System.Collections.Generic;
+using System.Reflection.Emit;
 using System.Text;
 using VideoGameCatalogue.Data.Models.Entities;
-using Microsoft.EntityFrameworkCore;
 
 namespace VideoGameCatalogue.Data.Data.EntityMapping
 {
@@ -28,12 +29,14 @@ namespace VideoGameCatalogue.Data.Data.EntityMapping
                .HasColumnType("nvarchar(1000)")
                .IsRequired();
              
-            builder.Property(vg => vg.ReleaseDate)
-                   .HasColumnType("date")      // SQL Server date type
-                   .IsRequired();
+            builder
+                .Property(vg => vg.ReleaseDate)
+                .HasColumnType("date")      // SQL Server date type
+                .IsRequired();
              
-            builder.Property(vg => vg.UserScore)
-                   .IsRequired();
+            builder
+                .Property(vg => vg.UserScore)
+                .IsRequired();
 
             //Enforce UserScore range constraint at the database level
             builder.ToTable("VideoGame", table =>
@@ -63,6 +66,39 @@ namespace VideoGameCatalogue.Data.Data.EntityMapping
                             j.ToTable("VideoGameGenre");
                             j.HasKey("VideoGameId", "GenreId");
                         });
+
+            builder.HasMany(vg => vg.Platforms)
+                   .WithMany(p => p.VideoGames)
+                   .UsingEntity<Dictionary<string, object>>(
+                        "VideoGamePlatform",
+                        j => j.HasOne<Platform>()
+                              .WithMany()
+                              .HasForeignKey("PlatformId")
+                              .HasConstraintName("FK_VideoGamePlatform_Platform_PlatformId")
+                              .OnDelete(DeleteBehavior.Cascade),
+                        j => j.HasOne<VideoGame>()
+                              .WithMany()
+                              .HasForeignKey("VideoGameId")
+                              .HasConstraintName("FK_VideoGamePlatform_VideoGame_VideoGameId")
+                              .OnDelete(DeleteBehavior.Cascade),
+                        j =>
+                        {
+                            j.ToTable("VideoGamePlatform");
+                            j.HasKey("VideoGameId", "PlatformId");
+                        });
+
+            builder
+                .HasOne(v => v.Publisher)
+                .WithMany(c => c.PublishedGames)
+                .HasForeignKey(v => v.PublisherId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder
+                .HasOne(v => v.Developer)
+                .WithMany(c => c.DevelopedGames)
+                .HasForeignKey(v => v.DeveloperId)
+                .OnDelete(DeleteBehavior.Restrict);
+
 
 
         }

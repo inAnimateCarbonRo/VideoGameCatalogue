@@ -39,6 +39,33 @@ namespace VideoGameCatalogue.Shared.Endpoints
             public const string FullDelete = $"{Base}/fulldelete/{{id}}";
 
         }
+        public static class PlatformEndpoints
+        {
+            private const string Base = $"{ApiBase}/platform";
+
+            public const string Get = $"{Base}/{{id}}";
+            public const string GetAll = Base;
+            public const string GetAllIncludingDeleted = $"{Base}/all-including-deleted";
+            public const string Create = Base;
+            public const string Update = $"{Base}/{{id}}";
+            public const string Delete = $"{Base}/{{id}}";
+            public const string Restore = $"{Base}/restore/{{id}}";
+            public const string FullDelete = $"{Base}/fulldelete/{{id}}";
+        }
+
+        public static class CompanyEndpoints
+        {
+            private const string Base = $"{ApiBase}/company";
+
+            public const string Get = $"{Base}/{{id}}";
+            public const string GetAll = Base;
+            public const string GetAllIncludingDeleted = $"{Base}/all-including-deleted";
+            public const string Create = Base;
+            public const string Update = $"{Base}/{{id}}";
+            public const string Delete = $"{Base}/{{id}}";
+            public const string Restore = $"{Base}/restore/{{id}}";
+            public const string FullDelete = $"{Base}/fulldelete/{{id}}";
+        }
 
     }
 }

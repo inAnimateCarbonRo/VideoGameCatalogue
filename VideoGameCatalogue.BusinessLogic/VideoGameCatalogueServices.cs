@@ -19,6 +19,16 @@ namespace VideoGameCatalogue.BusinessLogic
             services.AddScoped<IGenreService, GenreService>();
             services.AddScoped<IGenreRepository, GenreRepository>();
 
+            services.AddScoped<IGenreService, GenreService>();
+            services.AddScoped<IGenreRepository, GenreRepository>();
+
+            services.AddScoped<IPlatformService, PlatformService>();
+            services.AddScoped<IPlatformRepository, PlatformRepository>();
+
+            services.AddScoped<ICompanyService, CompanyService>();
+            services.AddScoped<ICompanyRepository, CompanyRepository>();
+
+
             return services;
         }
     }

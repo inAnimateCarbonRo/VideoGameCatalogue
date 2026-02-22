@@ -7,8 +7,27 @@ namespace VideoGameCatalogue.BusinessLogic.Repositories
 {
     public interface IVideoGameRepository : IRepositoryBase<VideoGame>
     {
-        Task<VideoGame> AddWithGenresAsync(VideoGame entity, IEnumerable<int> genreIds, CancellationToken token = default);
-        Task<VideoGame?> UpdateWithGenresAsync(VideoGame entity, IEnumerable<int> genreIds, CancellationToken token = default);
+         
+        Task<VideoGame> AddWithRelationshipsAsync(
+            VideoGame entity,
+            IEnumerable<int> genreIds,
+            IEnumerable<int> platformIds,
+            int? publisherId,
+            int? developerId,
+            byte[]? coverImageBytes,
+            string? coverImageContentType,
+            CancellationToken token = default);
+
+        Task<VideoGame?> UpdateWithRelationshipsAsync(
+            VideoGame entity,
+            IEnumerable<int> genreIds,
+            IEnumerable<int> platformIds,
+            int? publisherId,
+            int? developerId,
+            byte[]? coverImageBytes,
+            string? coverImageContentType,
+            bool overwriteCoverImage,
+            CancellationToken token = default);
     }
 
     public class VideoGameRepository : RepositoryBase<VideoGame>, IVideoGameRepository
@@ -19,6 +38,9 @@ namespace VideoGameCatalogue.BusinessLogic.Repositories
         {
             return await _dbSet
                 .Include(v => v.Genres)
+                .Include(v => v.Platforms)
+                .Include(v => v.Publisher)
+                .Include(v => v.Developer)
                 .AsNoTracking()
                 .ToListAsync(token);
         }
@@ -27,6 +49,9 @@ namespace VideoGameCatalogue.BusinessLogic.Repositories
         {
             return await _dbSet
                 .Include(v => v.Genres)
+                .Include(v => v.Platforms)
+                .Include(v => v.Publisher)
+                .Include(v => v.Developer)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(v => v.Id == id, token);
         }
@@ -36,94 +61,211 @@ namespace VideoGameCatalogue.BusinessLogic.Repositories
             return await _dbSet
                 .IgnoreQueryFilters()
                 .Include(v => v.Genres)
+                .Include(v => v.Platforms)
+                .Include(v => v.Publisher)
+                .Include(v => v.Developer)
                 .AsNoTracking()
                 .ToListAsync(token);
         }
-
-        public async Task<VideoGame> AddWithGenresAsync(VideoGame entity, IEnumerable<int> genreIds, CancellationToken token = default)
+        public async Task<VideoGame> AddWithRelationshipsAsync(
+    VideoGame entity,
+    IEnumerable<int> genreIds,
+    IEnumerable<int> platformIds,
+    int? publisherId,
+    int? developerId,
+    byte[]? coverImageBytes,
+    string? coverImageContentType,
+    CancellationToken token = default)
         {
-            var ids = (genreIds ?? Enumerable.Empty<int>()).Distinct().ToList();
-            if (ids.Count == 0)
+            // --- Genres ---
+            var gIds = (genreIds ?? Enumerable.Empty<int>()).Distinct().ToList();
+            if (gIds.Count == 0)
                 throw new InvalidOperationException("At least one GenreId is required.");
 
-            // Validate IDs exist
-            var existingIds = await _context.Set<Genre>()
-                .Where(g => ids.Contains(g.Id))
+            var existingGenreIds = await _context.Set<Genre>()
+                .Where(g => gIds.Contains(g.Id))
                 .Select(g => g.Id)
                 .ToListAsync(token);
 
-            var missing = ids.Except(existingIds).ToList();
-            if (missing.Count > 0)
-                throw new InvalidOperationException($"Invalid GenreIds: {string.Join(", ", missing)}");
+            var missingGenres = gIds.Except(existingGenreIds).ToList();
+            if (missingGenres.Count > 0)
+                throw new InvalidOperationException($"Invalid GenreIds: {string.Join(", ", missingGenres)}");
 
-            // Attach stubs 
+            // --- Platforms ---
+            var pIds = (platformIds ?? Enumerable.Empty<int>()).Distinct().ToList();
+            if (pIds.Count == 0)
+                throw new InvalidOperationException("At least one PlatformId is required.");
+
+            var existingPlatformIds = await _context.Set<Platform>()
+                .Where(p => pIds.Contains(p.Id))
+                .Select(p => p.Id)
+                .ToListAsync(token);
+
+            var missingPlatforms = pIds.Except(existingPlatformIds).ToList();
+            if (missingPlatforms.Count > 0)
+                throw new InvalidOperationException($"Invalid PlatformIds: {string.Join(", ", missingPlatforms)}");
+
+            // --- Publisher / Developer (optional) ---
+            if (publisherId.HasValue)
+            {
+                var pubExists = await _context.Set<Company>()
+                    .AnyAsync(c => c.Id == publisherId.Value, token);
+
+                if (!pubExists)
+                    throw new InvalidOperationException($"Invalid PublisherId: {publisherId.Value}");
+            }
+
+            if (developerId.HasValue)
+            {
+                var devExists = await _context.Set<Company>()
+                    .AnyAsync(c => c.Id == developerId.Value, token);
+
+                if (!devExists)
+                    throw new InvalidOperationException($"Invalid DeveloperId: {developerId.Value}");
+            }
+
+            // --- Apply scalar relationship fields / cover ---
+            entity.PublisherId = publisherId;
+            entity.DeveloperId = developerId;
+            entity.CoverImageBytes = coverImageBytes;
+            entity.CoverImageContentType = coverImageContentType;
+
+            // --- Attach stubs for many-to-many (fast) ---
             entity.Genres = new List<Genre>();
-            foreach (var id in ids)
+            foreach (var id in gIds)
             {
                 var stub = new Genre { Id = id };
                 _context.Attach(stub);
                 entity.Genres.Add(stub);
             }
 
+            entity.Platforms = new List<Platform>();
+            foreach (var id in pIds)
+            {
+                var platforms = await _context.Set<Platform>()
+                    .Where(p => pIds.Contains(p.Id))
+                    .ToListAsync(token);
+
+                entity.Platforms = platforms;
+            }
+
             await _dbSet.AddAsync(entity, token);
             await _context.SaveChangesAsync(token);
 
-            // Reload to populate teh full Genre
-            var reloaded = await _dbSet
+            // Reload for response
+            return await _dbSet
                 .Include(v => v.Genres)
+                .Include(v => v.Platforms)
+                .Include(v => v.Publisher)
+                .Include(v => v.Developer)
                 .AsNoTracking()
                 .FirstAsync(v => v.Id == entity.Id, token);
-
-            return reloaded;
         }
-
-        public async Task<VideoGame?> UpdateWithGenresAsync(
+        public async Task<VideoGame?> UpdateWithRelationshipsAsync(
     VideoGame entity,
     IEnumerable<int> genreIds,
+    IEnumerable<int> platformIds,
+    int? publisherId,
+    int? developerId,
+    byte[]? coverImageBytes,
+    string? coverImageContentType,
+    bool overwriteCoverImage,
     CancellationToken token = default)
         {
-            // 1) tracked entity
+            // 1) tracked entity + navs
             var existing = await _dbSet
                 .Include(v => v.Genres)
+                .Include(v => v.Platforms)
                 .FirstOrDefaultAsync(v => v.Id == entity.Id, token);
 
             if (existing == null)
                 return null;
 
-            // 2) update scalars on the tracked entity
+            // 2) update scalars
             existing.Title = entity.Title;
             existing.Synopsis = entity.Synopsis;
             existing.ReleaseDate = entity.ReleaseDate;
             existing.UserScore = entity.UserScore;
 
-            // 3) validate + load REAL Genre entities (not stubs)
-            var ids = (genreIds ?? Enumerable.Empty<int>()).Distinct().ToList();
-            if (ids.Count == 0)
+            existing.PublisherId = publisherId;
+            existing.DeveloperId = developerId;
+
+            // Cover image: only replace if requested
+            if (overwriteCoverImage)
+            {
+                existing.CoverImageBytes = coverImageBytes;
+                existing.CoverImageContentType = coverImageContentType;
+            }
+
+            // 3) validate + load REAL Genres
+            var gIds = (genreIds ?? Enumerable.Empty<int>()).Distinct().ToList();
+            if (gIds.Count == 0)
                 throw new InvalidOperationException("At least one GenreId is required.");
 
             var genres = await _context.Set<Genre>()
-                .Where(g => ids.Contains(g.Id))
+                .Where(g => gIds.Contains(g.Id))
                 .ToListAsync(token);
 
-            var missing = ids.Except(genres.Select(g => g.Id)).ToList();
-            if (missing.Count > 0)
-                throw new InvalidOperationException($"Invalid GenreIds: {string.Join(", ", missing)}");
+            var missingGenres = gIds.Except(genres.Select(g => g.Id)).ToList();
+            if (missingGenres.Count > 0)
+                throw new InvalidOperationException($"Invalid GenreIds: {string.Join(", ", missingGenres)}");
 
-            // 4) replace many-to-many relationships
+            // 4) validate + load REAL Platforms
+            var pIds = (platformIds ?? Enumerable.Empty<int>()).Distinct().ToList();
+            if (pIds.Count == 0)
+                throw new InvalidOperationException("At least one PlatformId is required.");
+
+            var platforms = await _context.Set<Platform>()
+                .Where(p => pIds.Contains(p.Id))
+                .ToListAsync(token);
+
+            var missingPlatforms = pIds.Except(platforms.Select(p => p.Id)).ToList();
+            if (missingPlatforms.Count > 0)
+                throw new InvalidOperationException($"Invalid PlatformIds: {string.Join(", ", missingPlatforms)}");
+
+            // 5) validate Publisher/Developer existence (optional)
+            if (publisherId.HasValue)
+            {
+                var pubExists = await _context.Set<Company>()
+                    .AnyAsync(c => c.Id == publisherId.Value, token);
+
+                if (!pubExists)
+                    throw new InvalidOperationException($"Invalid PublisherId: {publisherId.Value}");
+            }
+
+            if (developerId.HasValue)
+            {
+                var devExists = await _context.Set<Company>()
+                    .AnyAsync(c => c.Id == developerId.Value, token);
+
+                if (!devExists)
+                    throw new InvalidOperationException($"Invalid DeveloperId: {developerId.Value}");
+            }
+
+            // 6) replace many-to-many relationships
             existing.Genres.Clear();
             foreach (var g in genres)
                 existing.Genres.Add(g);
 
-            // 5) force EF to see changes (harmless if already enabled)
+            existing.Platforms.Clear();
+            foreach (var p in platforms)
+                existing.Platforms.Add(p);
+
+            // 7) ensure EF sees changes
             _context.ChangeTracker.DetectChanges();
 
             await _context.SaveChangesAsync(token);
 
-            // 6) reload for response
+            // 8) reload for response
             return await _dbSet
                 .Include(v => v.Genres)
+                .Include(v => v.Platforms)
+                .Include(v => v.Publisher)
+                .Include(v => v.Developer)
                 .AsNoTracking()
                 .FirstAsync(v => v.Id == existing.Id, token);
         }
+        
+
     }
 }

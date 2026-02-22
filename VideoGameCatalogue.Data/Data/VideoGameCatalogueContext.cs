@@ -18,8 +18,9 @@ namespace VideoGameCatalogue.Data.Data
 
         // DbSets (Tables) 
         public DbSet<VideoGame> VideoGames => Set<VideoGame>();  //gets a non nullable DbSet 
-        public DbSet<Genre> Genres => Set<Genre>();   
-
+        public DbSet<Genre> Genres => Set<Genre>();
+        public DbSet<Platform> Platforms => Set<Platform>();
+        public DbSet<Company> Companies => Set<Company>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -27,6 +28,8 @@ namespace VideoGameCatalogue.Data.Data
              
             modelBuilder.ApplyConfiguration(new VideoGameMapping());
             modelBuilder.ApplyConfiguration(new GenreMapping());
+            modelBuilder.ApplyConfiguration(new PlatformMapping());
+            modelBuilder.ApplyConfiguration(new CompanyMapping());
         }
     }
 }
