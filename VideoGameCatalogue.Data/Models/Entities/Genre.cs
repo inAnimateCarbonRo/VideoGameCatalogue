@@ -7,7 +7,7 @@ using VideoGameCatalogue.Shared.Base;
 
 namespace VideoGameCatalogue.Data.Models.Entities
 {
-    public class Genre : EntitySoftDeleteBase
+    public class Genre : EntityBase
     {
         [Required, MaxLength(100)]
         public string Name { get; set; } = string.Empty;

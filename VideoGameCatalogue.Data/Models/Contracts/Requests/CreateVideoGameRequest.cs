@@ -15,7 +15,7 @@ namespace VideoGameCatalogue.Data.Models.Contracts.Requests
         [MaxLength(1000)]
         public required string Synopsis { get; set; }
 
-        public required DateOnly ReleaseDate { get; set; }
+        public required DateOnly ReleaseDate { get; set; } = DateOnly.FromDateTime(DateTime.UtcNow);
 
         [Range(0, 100)]
         public int UserScore { get; set; }

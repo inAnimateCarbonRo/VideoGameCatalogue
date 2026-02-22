@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq; 
 using System.Text;
 using VideoGameCatalogue.Data.Models.Contracts.Requests;
 using VideoGameCatalogue.Data.Models.Contracts.Responses;
@@ -24,7 +25,7 @@ namespace VideoGameCatalogue.Data.Models.Mapping
         {
             return new VideoGame
             {
-                Id = id, 
+                Id = id,
                 Title = request.Title,
                 Synopsis = request.Synopsis,
                 ReleaseDate = request.ReleaseDate,
@@ -36,11 +37,18 @@ namespace VideoGameCatalogue.Data.Models.Mapping
         {
             return new VideoGameResponse
             {
-                Id = entity.Id, 
+                Id = entity.Id,
                 Title = entity.Title,
                 Synopsis = entity.Synopsis,
                 ReleaseDate = entity.ReleaseDate,
-                UserScore = entity.UserScore
+                UserScore = entity.UserScore,
+
+                // map genres
+                Genres = entity.Genres.Select(g => new GenreResponse
+                {
+                    Id = g.Id,
+                    Name = g.Name
+                }).ToList()
             };
         }
 

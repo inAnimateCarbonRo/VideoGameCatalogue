@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using VideoGameCatalogue.BusinessLogic.Services;
 using VideoGameCatalogue.Data.Models.Contracts.Requests;
 using VideoGameCatalogue.Data.Models.Contracts.Responses;
-using VideoGameCatalogue.Shared.Endpoints;
 using VideoGameCatalogue.Data.Models.Mapping;
+using VideoGameCatalogue.Shared.Endpoints;
 
 namespace VideoGameCatalogue.Api.Controllers
 {
@@ -46,43 +47,56 @@ namespace VideoGameCatalogue.Api.Controllers
             var response = items.MapToResponse();
             return Ok(response);
         }
-
+         
         [HttpPost(ApiEndpoints.VideoGameEndpoints.Create)]
         [ProducesResponseType(typeof(VideoGameResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<ActionResult<VideoGameResponse>> Create([FromBody] CreateVideoGameRequest item, CancellationToken token)
         {
             if (item == null) return BadRequest("Invalid data.");
 
-            var entity = item.MapToEntity();
-
-            await _service.AddWithReturningEntityAsync(entity, token);
-
-            var response = entity.MapToResponse();
-
-            return CreatedAtAction(nameof(GetById), new { id = entity.Id }, response);
+            try
+            {
+                var created = await _service.AddWithGenresAsync(item, token);
+                return CreatedAtAction(nameof(GetById), new { id = created.Id }, created.MapToResponse());
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(ex.Message);
+            }
+            catch (DbUpdateException ex) when (ex.InnerException is Microsoft.Data.SqlClient.SqlException sqlEx
+                                              && (sqlEx.Number == 2601 || sqlEx.Number == 2627))
+            {
+                // SQL Server duplicate key / unique constraint
+                return Conflict("A record with the same unique value already exists.");
+            }
         }
+
 
         [HttpPut(ApiEndpoints.VideoGameEndpoints.Update)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateVideoGameRequest item, CancellationToken token)
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<IActionResult> Update([FromRoute] int id,[FromBody] UpdateVideoGameRequest item, CancellationToken token)
         {
             if (item == null) return BadRequest("Invalid data.");
             if (id != item.Id) return BadRequest("Route id does not match payload id.");
 
-            var entity = item.MapToEntity(id);
+            try
+            {
+                var updated = await _service.UpdateWithGenresAsync(item, token);
+                if (updated == null) return NotFound();
+                return Ok(updated.MapToResponse());
 
-            var updated = await _service.UpdateAsync(entity, token);
-            if (!updated) return NotFound();
-
-            //return Ok(entity.MapToResponse());
-            //i prefer to return the updated entity, but best practice said this was more correct
-            return NoContent(); 
-
-
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(ex.Message);
+            }
         }
+
 
         [HttpDelete(ApiEndpoints.VideoGameEndpoints.Delete)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]

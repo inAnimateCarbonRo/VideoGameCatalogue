@@ -19,8 +19,7 @@ namespace VideoGameCatalogue.BusinessLogic.Context
         public static void AddDbContext(this IServiceCollection services)
         {
             services.AddDbContextFactory<VideoGameCatalogueContext>(options =>
-                options.UseSqlServer(cnnString, cTimeout => { cTimeout.CommandTimeout(500); })
-                       .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
+         options.UseSqlServer(cnnString, cTimeout => cTimeout.CommandTimeout(500)));
         }
     }
 }

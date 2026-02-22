@@ -4,7 +4,7 @@ using System.Text;
 
 namespace VideoGameCatalogue.Shared.Base
 {
-    public interface IServiceBase<T> where T : EntitySoftDeleteBase
+    public interface IServiceBase<T> where T : EntityBase
     {
         Task<IEnumerable<T>> GetAllAsync(CancellationToken token = default);
         Task<IEnumerable<T>> GetAllWithTrackingAsync(CancellationToken token = default);
@@ -19,7 +19,7 @@ namespace VideoGameCatalogue.Shared.Base
         Task<bool> DeleteRangeAsync(IEnumerable<int> ids, CancellationToken token = default);
     }
 
-    public class ServiceBase<T> : IServiceBase<T> where T : EntitySoftDeleteBase
+    public class ServiceBase<T> : IServiceBase<T> where T : EntityBase
     {
         protected readonly IRepositoryBase<T> _repository;
 

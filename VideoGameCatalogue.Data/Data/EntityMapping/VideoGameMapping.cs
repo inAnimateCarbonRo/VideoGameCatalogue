@@ -44,8 +44,6 @@ namespace VideoGameCatalogue.Data.Data.EntityMapping
             });
 
             // Relationships
-
-            // ✅ Many-to-many join table
             builder.HasMany(vg => vg.Genres)
                    .WithMany(g => g.VideoGames)
                    .UsingEntity<Dictionary<string, object>>(

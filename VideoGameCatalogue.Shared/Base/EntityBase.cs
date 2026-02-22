@@ -5,13 +5,16 @@ using System.Text;
 
 namespace VideoGameCatalogue.Shared.Base
 {
-    public class EntityBase
+    public class EntityBase  
     {
         [Key]
         public int Id { get; set; }
+        // Base class entity for soft delete as an option
+        public bool isDeleted { get; set; } = false;
+        public DateTimeOffset? DeletedOnDts { get; set; } //UTC Friendly.
 
-        // Would usually InsertedOnDts and UpdatedOnDts, And InsertedByUserId and UpdatedByUserId
-        // But no need for that here, we dont have a user system.
+        // No need for deleted by user id as we dont have a user system, but would be here if we did.
+        //public int? DeletedByUserID { get; set; }  
 
     }
 }

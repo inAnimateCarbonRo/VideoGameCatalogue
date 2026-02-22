@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,7 +10,7 @@ namespace VideoGameCatalogue.Shared.Base
     {
     }
 
-    public interface IRepositoryBase<T> where T : EntitySoftDeleteBase
+    public interface IRepositoryBase<T> where T : EntityBase
     {
         Task<IEnumerable<T>> GetAllAsync(CancellationToken token = default);
         Task<IEnumerable<T>> GetAllWithTrackingAsync(CancellationToken token = default);
@@ -24,7 +25,7 @@ namespace VideoGameCatalogue.Shared.Base
         Task<bool> DeleteRangeAsync(IEnumerable<int> ids, CancellationToken token = default);
         
     }
-    public class RepositoryBase<T> : IRepositoryBase<T> where T : EntitySoftDeleteBase
+    public class RepositoryBase<T> : IRepositoryBase<T> where T : EntityBase
     {
         protected readonly DbContext _context;
         protected readonly DbSet<T> _dbSet;
@@ -114,12 +115,12 @@ namespace VideoGameCatalogue.Shared.Base
 
         public async Task<bool> UpdateAsync(T entity, CancellationToken token = default)
         {
-            // Find existing entity (respecting query filters: will not update soft-deleted rows unless you want it to)
-            var id = EF.Property<int>(entity, "Id");
+            // Find existing entity 
+            var existing = await _dbSet
+               .AsTracking()
+               .FirstOrDefaultAsync(e => e.Id == entity.Id, token);
 
-            var existing = await _dbSet.FirstOrDefaultAsync(e => EF.Property<int>(e, "Id") == id, token);
-            if (existing == null)
-                return false;
+            if (existing == null) return false;
 
             // Preserve soft-delete state so an update doesn't accidentally toggle it
             var preservedIsDeleted = existing.isDeleted;
@@ -226,8 +227,6 @@ namespace VideoGameCatalogue.Shared.Base
             await _context.SaveChangesAsync(token);
             return true;
         }
-
-
 
     }
 }

@@ -1,8 +1,10 @@
+using Microsoft.OpenApi;
 using Scalar.AspNetCore;
+using System.Text.Json.Nodes;
 using VideoGameCatalogue.BusinessLogic;
+using VideoGameCatalogue.BusinessLogic.Context;
 using VideoGameCatalogue.Shared.Config;
 using VideoGameCatalogue.Shared.Enums;
-using VideoGameCatalogue.BusinessLogic.Context;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,8 +12,30 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options =>
+{
+    //Adding this because i want a default exmaple for DateOnly, 
+    //purely convenice
+    options.AddSchemaTransformer((schema, context, ct) =>
+    {
+        var type = context.JsonTypeInfo.Type;
 
+        if (type == typeof(DateOnly) || type == typeof(DateOnly?))
+        {
+            // ✅ Built-in OpenAPI uses JsonSchemaType enum
+            schema.Type = JsonSchemaType.String;
+            schema.Format = "date";
+
+            var today = DateOnly.FromDateTime(DateTime.UtcNow)
+                .ToString("yyyy-MM-dd");
+
+            schema.Example = JsonValue.Create(today);
+            schema.Default = JsonValue.Create(today);
+        }
+
+        return Task.CompletedTask;
+    });
+});
 
 // Get the DB connection string
 var dbConnection = builder.Configuration.GetConnectionString(

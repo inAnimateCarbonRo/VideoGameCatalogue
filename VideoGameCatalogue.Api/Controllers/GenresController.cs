@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using VideoGameCatalogue.BusinessLogic.Services;
 using VideoGameCatalogue.Data.Models.Contracts.Requests;
 using VideoGameCatalogue.Data.Models.Contracts.Responses;
-using VideoGameCatalogue.Shared.Endpoints;
 using VideoGameCatalogue.Data.Models.Mapping;
+using VideoGameCatalogue.Shared.Endpoints;
 
 namespace VideoGameCatalogue.Api.Controllers
 {
@@ -51,19 +52,22 @@ namespace VideoGameCatalogue.Api.Controllers
         [HttpPost(ApiEndpoints.GenreEndpoints.Create)]
         [ProducesResponseType(typeof(GenreResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<GenreResponse>> Create(
-            [FromBody] CreateGenreRequest item,
-            CancellationToken token)
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<ActionResult<GenreResponse>> Create([FromBody] CreateGenreRequest item, CancellationToken token)
         {
             if (item == null) return BadRequest("Invalid data.");
 
-            var entity = item.MapToEntity();
-
-            await _service.AddWithReturningEntityAsync(entity, token);
-
-            var response = entity.MapToResponse();
-
-            return CreatedAtAction(nameof(GetById), new { id = entity.Id }, response);
+            try
+            {
+                var entity = item.MapToEntity();
+                await _service.AddWithReturningEntityAsync(entity, token);
+                return CreatedAtAction(nameof(GetById), new { id = entity.Id }, entity.MapToResponse());
+            }
+            catch (DbUpdateException ex) when (ex.InnerException is Microsoft.Data.SqlClient.SqlException sqlEx
+                                              && (sqlEx.Number == 2601 || sqlEx.Number == 2627))
+            {
+                return Conflict($"Genre '{item.Name}' already exists.");
+            }
         }
 
         [HttpPut(ApiEndpoints.GenreEndpoints.Update)]
@@ -75,14 +79,20 @@ namespace VideoGameCatalogue.Api.Controllers
             [FromBody] UpdateGenreRequest item,
             CancellationToken token)
         {
+
+            Console.WriteLine($"[PUT Update] route id={id}, body id={item?.Id}, name={item?.Name}");
+
             if (item == null) return BadRequest("Invalid data.");
             if (id != item.Id) return BadRequest("Route id does not match payload id.");
 
             var entity = item.MapToEntity(id);
 
-            var updated = await _service.UpdateAsync(entity, token);
-            if (!updated) return NotFound();
+            Console.WriteLine($"[PUT Update] mapped entity: Id={entity.Id}, Name={entity.Name}");
 
+            var updated = await _service.UpdateAsync(entity, token);
+            Console.WriteLine($"[PUT Update] updated={updated}");
+
+            if (!updated) return NotFound();
             return NoContent();
         }
 

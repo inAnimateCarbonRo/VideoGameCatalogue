@@ -6,7 +6,7 @@ using VideoGameCatalogue.Shared.Base;
 
 namespace VideoGameCatalogue.Data.Models.Entities
 {
-    public class VideoGame : EntitySoftDeleteBase
+    public class VideoGame : EntityBase
     {
         [Required]
         [MaxLength(200)]
@@ -26,7 +26,7 @@ namespace VideoGameCatalogue.Data.Models.Entities
         //Wamt to add
         //Platforms (List of another model)
         //Genres (List of another model)
-        //Publisher (List of another model)
+        //Publisher (List of another model) // ThirdParty
         //Developer (List of another model) 
 
         // Image in DB
