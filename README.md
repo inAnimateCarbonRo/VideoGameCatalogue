@@ -4,7 +4,7 @@ A .NET 10 web API for managing a video game catalog with support for games, plat
 
 ## 🎮 Overview
 
-Video Game Catalogue is a RESTful API built with ASP.NET Core that provides endpoints for managing and querying video game data. The application follows a layered architecture with clear separation of concerns, making it maintainable, testable, and scalable.
+Video Game Catalogue is a RESTful API built with ASP.NET Core that provides endpoints for managing and querying video game data. The application follows a layered architecture with clear separation of concerns.
 
 ## 📋 Project Structure
 
@@ -110,6 +110,19 @@ dotnet run --project VideoGameCatalogue.Api
 ```
 
 The API will be available at `https://localhost:[port]`
+
+## 💾 Database & Sample Data
+
+The project includes a database file with pre-populated sample data, allowing you to test the API immediately after setup without having to manually create data entries.
+VideoGameCatalogueDB_Feb22.bak
+
+### Related UI Project
+
+A complementary web UI for this API is available at:
+- **Repository**: [VIDEOGAMECATALOGUE-UI](https://github.com/inAnimateCarbonRo/VIDEOGAMECATALOGUE-UI)
+- **Purpose**: Provides a user-friendly interface for browsing and managing video games, platforms, and genres
+
+You can run both the API and UI together for a complete application experience.
 
 ## 📚 API Endpoints
 
