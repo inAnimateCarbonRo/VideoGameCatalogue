@@ -9,6 +9,8 @@
     <File Path="CREATEDB.sql" />
   </Folder>
   <Folder Name="/Testing/">
-    <Project Path="Testing/VideoGameCatalogue.BusinessLogic.Tests/VideoGameCatalogue.BusinessLogic.Tests.csproj" Id="23d1c8bc-a612-445d-8b55-0615b0ce19f6" />
+    <Project Path="Testing/VideoGameCatalogue.BusinessLogic.Tests/VideoGameCatalogue.BusinessLogic.Tests.csproj" Id="23d1c8bc-a612-445d-8b55-0615b0ce19f6">
+      <Build Solution="Debug|*" Project="false" />
+    </Project>
   </Folder>
 </Solution>
