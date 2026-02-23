@@ -22,7 +22,6 @@ builder.Services.AddOpenApi(options =>
 
         if (type == typeof(DateOnly) || type == typeof(DateOnly?))
         {
-            // ✅ Built-in OpenAPI uses JsonSchemaType enum
             schema.Type = JsonSchemaType.String;
             schema.Format = "date";
 

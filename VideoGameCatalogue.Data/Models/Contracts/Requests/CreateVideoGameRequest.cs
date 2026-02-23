@@ -29,7 +29,7 @@ namespace VideoGameCatalogue.Data.Models.Contracts.Requests
         public int? PublisherId { get; set; }
         public int? DeveloperId { get; set; }
 
-        // Base64 image string (optional)
+        // Base64 image string 
         public string? CoverImageBase64 { get; set; }
 
         [MaxLength(100)]

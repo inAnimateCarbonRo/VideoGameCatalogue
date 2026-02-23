@@ -132,30 +132,25 @@ namespace VideoGameCatalogue.BusinessLogic.Repositories
             entity.CoverImageBytes = coverImageBytes;
             entity.CoverImageContentType = coverImageContentType;
 
-            // --- Attach stubs  
-            entity.Genres = new List<Genre>();
-            foreach (var id in gIds)
-            {
-                var stub = new Genre { Id = id };
-                _context.Attach(stub);
-                entity.Genres.Add(stub);
-            }
+            // --- Attach relationships
+            // Fetch actual tracked Genre entities to avoid duplicate key conflicts
+            var genres = await _context.Set<Genre>()
+                .Where(g => gIds.Contains(g.Id))
+                .ToListAsync(token);
+            entity.Genres = genres;
 
-            entity.Platforms = new List<Platform>();
-            foreach (var id in pIds)
-            {
-                var platforms = await _context.Set<Platform>()
-                    .Where(p => pIds.Contains(p.Id))
-                    .ToListAsync(token);
-
-                entity.Platforms = platforms;
-            }
+            // Fetch actual tracked Platform entities to avoid duplicate key conflicts
+            var platforms = await _context.Set<Platform>()
+                .Where(p => pIds.Contains(p.Id))
+                .ToListAsync(token);
+            entity.Platforms = platforms;
 
             await _dbSet.AddAsync(entity, token);
             await _context.SaveChangesAsync(token);
 
             // Reload for response
-            return await _dbSet
+           return await _dbSet
+               .IgnoreQueryFilters()
                 .Include(v => v.Genres)
                 .Include(v => v.Platforms)
                 .Include(v => v.Publisher)
