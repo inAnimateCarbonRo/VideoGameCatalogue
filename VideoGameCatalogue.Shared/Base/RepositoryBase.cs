@@ -20,9 +20,7 @@ namespace VideoGameCatalogue.Shared.Base
         Task<bool> DeleteAsync(int id, CancellationToken token = default);
         Task<bool> RestoreAsync(int id, CancellationToken token = default);
         Task<bool> FullDeleteAsync(int id, CancellationToken token = default);
-        Task<IEnumerable<T>> GetAllIncludingDeletedAsync(CancellationToken token = default);       
-        Task<bool> AddRangeAsync(IEnumerable<T> entities, CancellationToken token = default);
-        Task<bool> DeleteRangeAsync(IEnumerable<int> ids, CancellationToken token = default);
+        Task<IEnumerable<T>> GetAllIncludingDeletedAsync(CancellationToken token = default);     
         
     }
     public class RepositoryBase<T> : IRepositoryBase<T> where T : EntityBase
@@ -40,7 +38,10 @@ namespace VideoGameCatalogue.Shared.Base
         {
             try
             {
-                return await _dbSet.AsNoTracking().ToListAsync(token);
+                return await _dbSet
+                    .Where(e => !e.isDeleted)
+                    .AsNoTracking()
+                    .ToListAsync(token);
             }
             catch (System.Data.SqlTypes.SqlNullValueException ex)
             {
@@ -61,7 +62,9 @@ namespace VideoGameCatalogue.Shared.Base
         {
             try
             {
-                return await _dbSet.ToListAsync(token);
+                return await _dbSet
+                    .Where(e => !e.isDeleted)
+                    .ToListAsync(token);
             }
             catch (System.Data.SqlTypes.SqlNullValueException ex)
             {
@@ -82,7 +85,7 @@ namespace VideoGameCatalogue.Shared.Base
         {
             try
             {
-                return await _dbSet.FirstOrDefaultAsync(e => EF.Property<int>(e, "Id") == id, token);
+                return await _dbSet.FirstOrDefaultAsync(e => EF.Property<int>(e, "Id") == id && !e.isDeleted, token);
             }
             catch (System.Data.SqlTypes.SqlNullValueException ex)
             {
@@ -208,25 +211,6 @@ namespace VideoGameCatalogue.Shared.Base
         }
 
 
-        public virtual async Task<bool> AddRangeAsync(IEnumerable<T> entities, CancellationToken token = default)
-        {
-            await _dbSet.AddRangeAsync(entities, token);
-            await _context.SaveChangesAsync(token);
-            return true;
-        }
-
-
-        public virtual async Task<bool> DeleteRangeAsync(IEnumerable<int> ids, CancellationToken token = default)
-        {
-            var entities = await _dbSet.Where(e => ids.Contains(EF.Property<int>(e, "Id"))).ToListAsync(token);
-            foreach (var entity in entities)
-            {
-                entity.isDeleted = true;
-                _context.Entry(entity).State = EntityState.Modified;
-            }
-            await _context.SaveChangesAsync(token);
-            return true;
-        }
 
     }
 }

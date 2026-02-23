@@ -5,9 +5,10 @@
     <Project Path="VideoGameCatalogue.Data/VideoGameCatalogue.Data.csproj" Id="68f1c4d8-1d19-47e6-94fc-5942092743ea" />
     <Project Path="VideoGameCatalogue.Shared/VideoGameCatalogue.Shared.csproj" Id="6525218d-981e-4e97-a6df-de03645a70e8" />
   </Folder>
-  <Folder Name="/Frontend/" />
   <Folder Name="/MISC/">
     <File Path="CREATEDB.sql" />
   </Folder>
-  <Folder Name="/Testing/" />
+  <Folder Name="/Testing/">
+    <Project Path="Testing/VideoGameCatalogue.BusinessLogic.Tests/VideoGameCatalogue.BusinessLogic.Tests.csproj" Id="23d1c8bc-a612-445d-8b55-0615b0ce19f6" />
+  </Folder>
 </Solution>

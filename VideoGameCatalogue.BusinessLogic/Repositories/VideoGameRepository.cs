@@ -37,6 +37,7 @@ namespace VideoGameCatalogue.BusinessLogic.Repositories
         public override async Task<IEnumerable<VideoGame>> GetAllAsync(CancellationToken token = default)
         {
             return await _dbSet
+                .Where(v => !v.isDeleted)
                 .Include(v => v.Genres)
                 .Include(v => v.Platforms)
                 .Include(v => v.Publisher)
@@ -44,6 +45,7 @@ namespace VideoGameCatalogue.BusinessLogic.Repositories
                 .AsNoTracking()
                 .ToListAsync(token);
         }
+
 
         public override async Task<VideoGame?> GetByIdAsync(int id, CancellationToken token = default)
         {
@@ -68,14 +70,14 @@ namespace VideoGameCatalogue.BusinessLogic.Repositories
                 .ToListAsync(token);
         }
         public async Task<VideoGame> AddWithRelationshipsAsync(
-    VideoGame entity,
-    IEnumerable<int> genreIds,
-    IEnumerable<int> platformIds,
-    int? publisherId,
-    int? developerId,
-    byte[]? coverImageBytes,
-    string? coverImageContentType,
-    CancellationToken token = default)
+            VideoGame entity,
+            IEnumerable<int> genreIds,
+            IEnumerable<int> platformIds,
+            int? publisherId,
+            int? developerId,
+            byte[]? coverImageBytes,
+            string? coverImageContentType,
+            CancellationToken token = default)
         {
             // --- Genres ---
             var gIds = (genreIds ?? Enumerable.Empty<int>()).Distinct().ToList();
@@ -105,7 +107,7 @@ namespace VideoGameCatalogue.BusinessLogic.Repositories
             if (missingPlatforms.Count > 0)
                 throw new InvalidOperationException($"Invalid PlatformIds: {string.Join(", ", missingPlatforms)}");
 
-            // --- Publisher / Developer (optional) ---
+            // --- Publisher / Developer  
             if (publisherId.HasValue)
             {
                 var pubExists = await _context.Set<Company>()
@@ -130,7 +132,7 @@ namespace VideoGameCatalogue.BusinessLogic.Repositories
             entity.CoverImageBytes = coverImageBytes;
             entity.CoverImageContentType = coverImageContentType;
 
-            // --- Attach stubs for many-to-many (fast) ---
+            // --- Attach stubs  
             entity.Genres = new List<Genre>();
             foreach (var id in gIds)
             {
@@ -162,15 +164,15 @@ namespace VideoGameCatalogue.BusinessLogic.Repositories
                 .FirstAsync(v => v.Id == entity.Id, token);
         }
         public async Task<VideoGame?> UpdateWithRelationshipsAsync(
-    VideoGame entity,
-    IEnumerable<int> genreIds,
-    IEnumerable<int> platformIds,
-    int? publisherId,
-    int? developerId,
-    byte[]? coverImageBytes,
-    string? coverImageContentType,
-    bool overwriteCoverImage,
-    CancellationToken token = default)
+            VideoGame entity,
+            IEnumerable<int> genreIds,
+            IEnumerable<int> platformIds,
+            int? publisherId,
+            int? developerId,
+            byte[]? coverImageBytes,
+            string? coverImageContentType,
+            bool overwriteCoverImage,
+            CancellationToken token = default)
         {
             // 1) tracked entity + navs
             var existing = await _dbSet
@@ -197,7 +199,7 @@ namespace VideoGameCatalogue.BusinessLogic.Repositories
                 existing.CoverImageContentType = coverImageContentType;
             }
 
-            // 3) validate + load REAL Genres
+            // 3) validate + load Genres
             var gIds = (genreIds ?? Enumerable.Empty<int>()).Distinct().ToList();
             if (gIds.Count == 0)
                 throw new InvalidOperationException("At least one GenreId is required.");
@@ -210,7 +212,7 @@ namespace VideoGameCatalogue.BusinessLogic.Repositories
             if (missingGenres.Count > 0)
                 throw new InvalidOperationException($"Invalid GenreIds: {string.Join(", ", missingGenres)}");
 
-            // 4) validate + load REAL Platforms
+            // 4) validate + load Platforms
             var pIds = (platformIds ?? Enumerable.Empty<int>()).Distinct().ToList();
             if (pIds.Count == 0)
                 throw new InvalidOperationException("At least one PlatformId is required.");
@@ -223,7 +225,7 @@ namespace VideoGameCatalogue.BusinessLogic.Repositories
             if (missingPlatforms.Count > 0)
                 throw new InvalidOperationException($"Invalid PlatformIds: {string.Join(", ", missingPlatforms)}");
 
-            // 5) validate Publisher/Developer existence (optional)
+            // 5) validate Publisher/Developer existence 
             if (publisherId.HasValue)
             {
                 var pubExists = await _context.Set<Company>()

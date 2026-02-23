@@ -15,8 +15,6 @@ namespace VideoGameCatalogue.Shared.Base
         Task<bool> RestoreAsync(int id, CancellationToken token = default);
         Task<bool> FullDeleteAsync(int id, CancellationToken token = default);
         Task<IEnumerable<T>> GetAllIncludingDeletedAsync(CancellationToken token = default);
-        Task<bool> AddRangeAsync(IEnumerable<T> entities, CancellationToken token = default);
-        Task<bool> DeleteRangeAsync(IEnumerable<int> ids, CancellationToken token = default);
     }
 
     public class ServiceBase<T> : IServiceBase<T> where T : EntityBase
@@ -44,9 +42,6 @@ namespace VideoGameCatalogue.Shared.Base
         public async Task<bool> FullDeleteAsync(int id, CancellationToken token = default) => await _repository.FullDeleteAsync(id, token);
 
         public async Task<IEnumerable<T>> GetAllIncludingDeletedAsync(CancellationToken token = default) => await _repository.GetAllIncludingDeletedAsync(token);
-        public async Task<bool> AddRangeAsync(IEnumerable<T> entities, CancellationToken token = default) =>  await _repository.AddRangeAsync(entities, token);
-        
-        public async Task<bool> DeleteRangeAsync(IEnumerable<int> ids, CancellationToken token = default) => await  _repository.DeleteRangeAsync(ids, token);
         
     }
 }
