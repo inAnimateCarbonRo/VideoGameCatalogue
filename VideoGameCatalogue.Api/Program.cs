@@ -1,6 +1,7 @@
 using Microsoft.OpenApi;
 using Scalar.AspNetCore;
 using System.Text.Json.Nodes;
+using VideoGameCatalogue.Api.Endpoints;
 using VideoGameCatalogue.BusinessLogic;
 using VideoGameCatalogue.BusinessLogic.Context;
 using VideoGameCatalogue.Shared.Config;
@@ -10,7 +11,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi(options =>
 {
@@ -43,12 +43,13 @@ var dbConnection = builder.Configuration.GetConnectionString(
 
 SystemDbContext.SQLConnectionString(dbConnection);
 builder.Services.AddDbContext();
+
+
+builder.Services.AddAuthorization();
 builder.Services.AddVideoGameCatalogueServices(); // DI for business logic services and repositories
 
 
 var app = builder.Build();
-
-
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -62,19 +63,20 @@ if (app.Environment.IsDevelopment())
         .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
         .EnableDarkMode();
     }
-   );
-   // i like scalar, taken from this video: https://www.youtube.com/watch?v=8yI4gD1HruY&t=316s
+    );
+    // i like scalar, taken from this video: https://www.youtube.com/watch?v=8yI4gD1HruY&t=316s
 }
 
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-app.MapControllers();
+// Map minimal API endpoints
+app.MapApiEndpoints();
 
 // Convenience step, i want to load scalar when the project starts
 // redirect "/" to Scalar UI so devs land on docs by default.
-//https://blog.antosubash.com/posts/dotnet-openapi-with-scalar
+// https://blog.antosubash.com/posts/dotnet-openapi-with-scalar
 app.MapGet("/", () => Results.Redirect("/scalar/v1"))
    .ExcludeFromDescription();
 

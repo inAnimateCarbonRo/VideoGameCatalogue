@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VideoGameCatalogue.BusinessLogic.Services;
-using VideoGameCatalogue.Data.Models.Contracts.Requests;
-using VideoGameCatalogue.Data.Models.Contracts.Responses;
-using VideoGameCatalogue.Data.Models.Mapping;
+using VideoGameCatalogue.Models.Models.Contracts.Requests;
+using VideoGameCatalogue.Models.Models.Contracts.Responses;
+using VideoGameCatalogue.Models.Models.Mapping;
 using VideoGameCatalogue.Shared.Endpoints;
 
 namespace VideoGameCatalogue.Api_Deprecated.Controllers

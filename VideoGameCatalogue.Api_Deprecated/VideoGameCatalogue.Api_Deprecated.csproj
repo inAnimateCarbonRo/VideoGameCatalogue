@@ -17,7 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\VideoGameCatalogue.BusinessLogic\VideoGameCatalogue.BusinessLogic.csproj" />
-    <ProjectReference Include="..\VideoGameCatalogue.Data\VideoGameCatalogue.Data.csproj" />
+    <ProjectReference Include="..\VideoGameCatalogue.Models\VideoGameCatalogue.Models.csproj" />
     <ProjectReference Include="..\VideoGameCatalogue.Shared\VideoGameCatalogue.Shared.csproj" />
   </ItemGroup>
 

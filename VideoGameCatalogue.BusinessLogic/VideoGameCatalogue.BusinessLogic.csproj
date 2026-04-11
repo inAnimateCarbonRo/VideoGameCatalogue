@@ -7,7 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\VideoGameCatalogue.Data\VideoGameCatalogue.Data.csproj" />
+    <ProjectReference Include="..\VideoGameCatalogue.DataServices\VideoGameCatalogue.DataServices.csproj" />
+    <ProjectReference Include="..\VideoGameCatalogue.Models\VideoGameCatalogue.Models.csproj" />
     <ProjectReference Include="..\VideoGameCatalogue.Shared\VideoGameCatalogue.Shared.csproj" />
   </ItemGroup>
 
