@@ -1,0 +1,28 @@
+services:
+  sql2025:
+    image: mcr.microsoft.com/mssql/server:2025-latest
+    container_name: sql2025
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "MySaPassword123!"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql2025_data:/var/opt/mssql
+      - "D:/DEV/DockerShared:/shared"
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres_latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+      POSTGRES_DB: devdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+volumes:
+  sql2025_data:
+  postgres_data:
