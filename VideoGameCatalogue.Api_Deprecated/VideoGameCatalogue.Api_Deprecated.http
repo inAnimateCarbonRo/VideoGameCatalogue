@@ -1,0 +1,6 @@
+@VideoGameCatalogue.Api_Deprecated_HostAddress = http://localhost:5082
+
+GET {{VideoGameCatalogue.Api_Deprecated_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
