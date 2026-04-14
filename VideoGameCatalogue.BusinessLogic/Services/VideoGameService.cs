@@ -2,9 +2,9 @@
 using System.Threading;
 using System.Threading.Tasks;
 using VideoGameCatalogue.BusinessLogic.Repositories;
-using VideoGameCatalogue.Data.Models.Contracts.Requests;
-using VideoGameCatalogue.Data.Models.Entities;
-using VideoGameCatalogue.Data.Models.Mapping;
+using VideoGameCatalogue.Models.Models.Contracts.Requests;
+using VideoGameCatalogue.Models.Models.Entities;
+using VideoGameCatalogue.Models.Models.Mapping;
 using VideoGameCatalogue.Shared.Base;
 
 public interface IVideoGameService : IServiceBase<VideoGame>

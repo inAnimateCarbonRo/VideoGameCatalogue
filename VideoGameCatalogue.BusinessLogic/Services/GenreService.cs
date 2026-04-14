@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using VideoGameCatalogue.BusinessLogic.Repositories;
-using VideoGameCatalogue.Data.Models.Entities;
+using VideoGameCatalogue.Models.Models.Entities;
 using VideoGameCatalogue.Shared.Base;
 
 namespace VideoGameCatalogue.BusinessLogic.Services

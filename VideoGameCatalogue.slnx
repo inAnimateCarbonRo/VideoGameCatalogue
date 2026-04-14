@@ -1,8 +1,11 @@
 <Solution>
   <Folder Name="/Backend/">
     <Project Path="VideoGameCatalogue.Api/VideoGameCatalogue.Api.csproj" Id="4ffb5c78-38d1-4813-85a1-2e907ff419d3" />
+    <Project Path="VideoGameCatalogue.Api_Deprecated/VideoGameCatalogue.Api_Deprecated.csproj" Id="090e137a-5581-472e-9fe6-7dcd001bdf01" />
     <Project Path="VideoGameCatalogue.BusinessLogic/VideoGameCatalogue.BusinessLogic.csproj" />
-    <Project Path="VideoGameCatalogue.Data/VideoGameCatalogue.Data.csproj" Id="68f1c4d8-1d19-47e6-94fc-5942092743ea" />
+    <Project Path="VideoGameCatalogue.DataServices/VideoGameCatalogue.DataServices.csproj" Id="d69572cf-51b3-44ea-a30b-f7f8fb7ffdf1" />
+    <Project Path="VideoGameCatalogue.Integrations/VideoGameCatalogue.Integrations.csproj" Id="9fc19fd3-d868-4872-94f0-562416b18691" />
+    <Project Path="VideoGameCatalogue.Models/VideoGameCatalogue.Models.csproj" Id="6ae2d413-7aa6-497d-a2f4-6c0ed5c6d7e3" />
     <Project Path="VideoGameCatalogue.Shared/VideoGameCatalogue.Shared.csproj" Id="6525218d-981e-4e97-a6df-de03645a70e8" />
   </Folder>
   <Folder Name="/docs/">
@@ -10,6 +13,7 @@
   </Folder>
   <Folder Name="/MISC/">
     <File Path="CREATEDB.sql" />
+    <File Path="RestoreDBbakFile.sql" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path="docker-compose.yml" />

@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using VideoGameCatalogue.BusinessLogic.Repositories;
 using VideoGameCatalogue.Data.Data;
-using VideoGameCatalogue.Data.Models.Entities;
+using VideoGameCatalogue.Models.Models.Entities;
 
 namespace VideoGameCatalogue.BusinessLogic.Tests.RepositoriesTests
 {
