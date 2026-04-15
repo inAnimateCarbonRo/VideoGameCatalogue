@@ -1,7 +1,5 @@
-using Microsoft.OpenApi;
-using Scalar.AspNetCore;
-using System.Text.Json.Nodes;
 using VideoGameCatalogue.Api.Endpoints;
+using VideoGameCatalogue.Api.Extensions;
 using VideoGameCatalogue.BusinessLogic;
 using VideoGameCatalogue.BusinessLogic.Context;
 using VideoGameCatalogue.Shared.Config;
@@ -12,29 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi(options =>
-{
-    //Adding this because i want a default exmaple for DateOnly, 
-    //purely convenice
-    options.AddSchemaTransformer((schema, context, ct) =>
-    {
-        var type = context.JsonTypeInfo.Type;
-
-        if (type == typeof(DateOnly) || type == typeof(DateOnly?))
-        {
-            schema.Type = JsonSchemaType.String;
-            schema.Format = "date";
-
-            var today = DateOnly.FromDateTime(DateTime.UtcNow)
-                .ToString("yyyy-MM-dd");
-
-            schema.Example = JsonValue.Create(today);
-            schema.Default = JsonValue.Create(today);
-        }
-
-        return Task.CompletedTask;
-    });
-});
+builder.Services.AddOpenApiConfiguration();
 
 // Get the DB connection string
 var dbConnection = builder.Configuration.GetConnectionString(
@@ -52,20 +28,7 @@ builder.Services.AddVideoGameCatalogueServices(); // DI for business logic servi
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-    app.MapScalarApiReference(options =>
-    {
-        options
-        .WithTitle("VideoGameCatalogue API")
-        .WithTheme(ScalarTheme.Mars)
-        .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
-        .EnableDarkMode();
-    }
-    );
-    // i like scalar, taken from this video: https://www.youtube.com/watch?v=8yI4gD1HruY&t=316s
-}
+app.MapOpenApiEndpoints();
 
 app.UseHttpsRedirection();
 
@@ -73,11 +36,5 @@ app.UseAuthorization();
 
 // Map minimal API endpoints
 app.MapApiEndpoints();
-
-// Convenience step, i want to load scalar when the project starts
-// redirect "/" to Scalar UI so devs land on docs by default.
-// https://blog.antosubash.com/posts/dotnet-openapi-with-scalar
-app.MapGet("/", () => Results.Redirect("/scalar/v1"))
-   .ExcludeFromDescription();
 
 app.Run();
