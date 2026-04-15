@@ -12,6 +12,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApiConfiguration();
 
+// Configure CORS
+builder.Services.AddCorsPolicy(builder);
+
 // Get the DB connection string
 var dbConnection = builder.Configuration.GetConnectionString(
     EnumUtilities.GetEnumDescription(SystemConfig.CurrentSystemEnum))
@@ -28,6 +31,7 @@ builder.Services.AddVideoGameCatalogueServices(); // DI for business logic servi
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+app.UseCorsPolicy();
 app.MapOpenApiEndpoints();
 
 app.UseHttpsRedirection();
@@ -38,3 +42,5 @@ app.UseAuthorization();
 app.MapApiEndpoints();
 
 app.Run();
+
+
